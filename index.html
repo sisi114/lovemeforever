@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For You ❤️</title>
+    <style>
+        body { margin: 0; background: #1a0a0a; color: #ff4d6d; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; }
+        canvas { position: absolute; top: 0; left: 0; z-index: -1; }
+        .container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; background: rgba(0,0,0,0.4); }
+        h1 { font-size: 3rem; text-shadow: 0 0 20px #ff4d6d; margin-bottom: 10px; }
+        #message { font-size: 1.2rem; height: 1.5rem; color: #ff8fa3; }
+        .btn-group { margin-top: 30px; position: relative; width: 100%; height: 100px; }
+        button { padding: 15px 30px; font-size: 1.2rem; border: none; border-radius: 50px; cursor: pointer; transition: transform 0.2s, background 0.3s; }
+        #yesBtn { background: #ff4d6d; color: white; z-index: 10; box-shadow: 0 0 15px #ff4d6d; }
+        #noBtn { background: #590d22; color: #ffb3c1; position: absolute; left: 50%; transform: translateX(50px); }
+        #success-screen { display: none; position: fixed; inset: 0; background: #590d22; z-index: 100; flex-direction: column; align-items: center; justify-content: center; }
+    </style>
+</head>
+<body>
+
+<canvas id="heartCanvas"></canvas>
+
+<div class="container" id="main-ui">
+    <h1 id="title">Will you be my Valentine?</h1>
+    <div id="message"></div>
+    
+    <div class="btn-group">
+        <button id="yesBtn" onclick="celebrate()">YES</button>
+        <button id="noBtn" onmouseover="dodge()">NO</button>
+    </div>
+</div>
+
+<div id="success-screen">
+    <h1>🥰 Yay! See you then!</h1>
+    <p style="font-size: 5rem;">💐🍫🍷</p>
+    <button onclick="location.reload()" style="background: none; border: 1px solid white; color: white;">Play again?</button>
+</div>
+
+<script>
+    const canvas = document.getElementById('heartCanvas');
+    const ctx = canvas.getContext('2d');
+    const msgDiv = document.getElementById('message');
+    const messages = ["I have a question...", "It's important.", "Don't say no!", "Please? 🥺"];
+    let msgIndex = 0;
+    let yesScale = 1;
+
+    // Typewriter effect
+    function typeWriter() {
+        let charIndex = 0;
+        let currentMsg = messages[msgIndex];
+        msgDiv.innerText = "";
+        const interval = setInterval(() => {
+            msgDiv.innerText += currentMsg[charIndex];
+            charIndex++;
+            if(charIndex >= currentMsg.length) {
+                clearInterval(interval);
+                setTimeout(() => {
+                    msgIndex = (msgIndex + 1) % messages.length;
+                    typeWriter();
+                }, 2000);
+            }
+        }, 100);
+    }
+
+    // Particle background
+    let particles = [];
+    function init() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        for(let i=0; i<60; i++) particles.push(new Particle());
+    }
+
+    class Particle {
+        constructor() { this.reset(); }
+        reset() {
+            this.x = Math.random() * canvas.width;
+            this.y = canvas.height + 20;
+            this.size = Math.random() * 20 + 10;
+            this.speed = Math.random() * 2 + 1;
+            this.opacity = Math.random() * 0.5 + 0.2;
+        }
+        update() {
+            this.y -= this.speed;
+            if(this.y < -20) this.reset();
+        }
+        draw() {
+            ctx.fillStyle = `rgba(255, 77, 109, ${this.opacity})`;
+            ctx.font = `${this.size}px Arial`;
+            ctx.fillText("❤️", this.x, this.y);
+        }
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => { p.update(); p.draw(); });
+        requestAnimationFrame(animate);
+    }
+
+    // Interactive logic
+    function dodge() {
+        const btn = document.getElementById('noBtn');
+        const x = Math.random() * (window.innerWidth - 100);
+        const y = Math.random() * (window.innerHeight - 50);
+        btn.style.left = x + 'px';
+        btn.style.top = y + 'px';
+        btn.style.position = 'fixed';
+        
+        // Make the YES button bigger!
+        yesScale += 0.15;
+        document.getElementById('yesBtn').style.transform = `scale(${yesScale})`;
+    }
+
+    function celebrate() {
+        document.getElementById('success-screen').style.display = 'flex';
+    }
+
+    init();
+    animate();
+    typeWriter();
+    window.addEventListener('resize', init);
+</script>
+
+</body>
+</html>
